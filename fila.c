@@ -1,36 +1,131 @@
 #include "fila.h"
-#define TAM 30
+#define TAM 50
 
-struct tFila
+/////////////////////////////// FILA //////////////////////////////////////////
+
+struct tFila                //Estrutura da Fila
 {
-  char buffer[];
+  char *buffer;
   struct tFila *prox;
 };
 
-struct tCelula
+char* copia_string(char *str)  //Funcao para copia de string
 {
-  Fila *primeiro;
-  Fila *ultimo;
+    char *p;
+    p = (char*) malloc(1+strlen(str));
+    strcpy(p, str);
+
+    return p;
+}
+
+Fila criaElemFila(char *elem)          //Cria um novo elemento fila
+{
+    Fila novo = (Fila) malloc(sizeof(struct tFila));
+    novo->buffer = (char*) copia_string(elem);
+    novo->prox = NULL;
+
+    return novo;
+}
+
+int filaVazia(Fila f)
+{
+    return f == NULL;
+}
+
+void liberaFila(Fila *fila)
+{
+    if(*fila == NULL)
+        return;
+
+    Fila f, aux;
+    f = aux = *fila;
+
+    while(aux != NULL)
+    {
+        free(aux->buffer);
+        aux = aux->prox;
+        free(f);
+        f = aux;
+    }
+}
+
+void insereFinalFila(Fila *fila, char *str)
+{
+    if(*fila == NULL)
+    {
+        *fila = criaElemFila(str);
+        return;
+    }
+
+    Fila aux = *fila;
+
+    while(aux->prox != NULL)
+        aux = aux->prox;
+
+    aux->prox = criaElemFila(str);
+}
+
+void imprimeFila(Fila fila)
+{
+    if(fila == NULL)
+    {
+        printf("Fila Vazia\n");
+        return;
+    }
+
+    while(fila != NULL)
+    {
+        printf("%s\n", fila->buffer);
+        fila = fila->prox;
+    }
+}
+
+//////////////////////////////////////// CELULA ////////////////////////////////
+
+struct tCelula              //Estrutura da Celula
+{
+  struct tFila *primeiro;
+  struct tFila *ultimo;
 };
 
-Fila* criaFila(void)
+Celula criaCelula(void)         //Cria uma celula
 {
-  Fila *novo = (Fila*) malloc(sizeof(Fila));
-  return novo;
+    Celula novo = (Celula) malloc(sizeof(struct tCelula));
+    novo->primeiro = NULL;
+    novo->ultimo = NULL;
+    return novo;
 }
 
-int filaVazia(Fila* f)
+void liberaCelula(Celula *cel)
 {
-  return buffer == NULL;
+    Celula c = (*cel);
+    liberaFila(&c->primeiro);
+    //liberaFila(c->ultimo);
+    free(*cel);
 }
 
-Celula addPrimeiro(Celula cel, Fila *prim)
+int celulaVazia(Celula c) //Verifica se a celula esta vazia
 {
-  cel.primeiro = cel.ultimo = prim;
+  return c->primeiro == NULL;
 }
 
-Fila* insereFila(char *buffer, Celula cel)
+void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
 {
-  Fila *novo = criaFila();
-  novo->buffer = buffer;
+    if(celulaVazia(cel))  //Se a fila estiver vazia insere o primeiro elemento
+    {
+        cel->primeiro = criaElemFila(str);
+        cel->ultimo = cel->primeiro;
+        return;
+    }
+    // Se nao insere no final
+
+    Fila f = cel->ultimo;
+    f->prox = criaElemFila(str);          //insere o novo elemento no final
+    cel->ultimo = f->prox;             //atualiza o ultimo elemento da celula
+}
+
+void imprimeCelula(Celula cel)
+{
+    Fila f = cel->primeiro;
+    imprimeFila(f);
 }
