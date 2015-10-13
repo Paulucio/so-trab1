@@ -1,9 +1,8 @@
 #include "fila.h"
-#define TAM 50
 
 /////////////////////////////// FILA //////////////////////////////////////////
 
-struct tFila                //Estrutura da Fila
+struct tFila                //Definindo a estrutura da Fila
 {
   char *buffer;
   struct tFila *prox;
@@ -18,26 +17,26 @@ char* copia_string(char *str)  //Funcao para copia de string
     return p;
 }
 
-Fila criaElemFila(char *elem)          //Cria um novo elemento fila
+Fila criaElemFila(char *elem)          //Cria um novo elemento na fila
 {
-    Fila novo = (Fila) malloc(sizeof(struct tFila));
-    novo->buffer = (char*) copia_string(elem);
-    novo->prox = NULL;
+    Fila novo = (Fila) malloc(sizeof(struct tFila));   //Aloca memoria para o novo elemento
+    novo->buffer = (char*) copia_string(elem);         //Insere o elemento
+    novo->prox = NULL;                                 //Inicializa o ponteiro do proximo
 
     return novo;
 }
 
-int filaVazia(Fila f)
+int filaVazia(Fila f) //Verifica se a fila esta vazia
 {
     return f == NULL;
 }
 
-void liberaFila(Fila *fila)
+void liberaFila(Fila *fila) //Libera a memoria alocada pela fila
 {
-    if(*fila == NULL)
+    if(*fila == NULL)   //Verifica se a fila esta vazia
         return;
 
-    Fila f, aux;
+    Fila f, aux;         //Libera a memoria percorrendo a fila
     f = aux = *fila;
 
     while(aux != NULL)
@@ -49,9 +48,9 @@ void liberaFila(Fila *fila)
     }
 }
 
-void insereFinalFila(Fila *fila, char *str)
+void insereFinalFila(Fila *fila, char *str) //Insere no final da fila
 {
-    if(*fila == NULL)
+    if(*fila == NULL)     //Verifica se a fila esta vazia
     {
         *fila = criaElemFila(str);
         return;
@@ -59,21 +58,21 @@ void insereFinalFila(Fila *fila, char *str)
 
     Fila aux = *fila;
 
-    while(aux->prox != NULL)
+    while(aux->prox != NULL)            //Percorre a fila e insere no final
         aux = aux->prox;
 
     aux->prox = criaElemFila(str);
 }
 
-void imprimeFila(Fila fila)
+void imprimeFila(Fila fila)  //Funcao de imprimir os elementos da fila
 {
-    if(fila == NULL)
+    if(fila == NULL)   //Se estiver vazia
     {
         printf("Fila Vazia\n");
         return;
     }
 
-    while(fila != NULL)
+    while(fila != NULL)  //Percorre a fila imprimindo os elementos
     {
         printf("%s\n", fila->buffer);
         fila = fila->prox;
@@ -90,13 +89,13 @@ struct tCelula              //Estrutura da Celula
 
 Celula criaCelula(void)         //Cria uma celula
 {
-    Celula novo = (Celula) malloc(sizeof(struct tCelula));
-    novo->primeiro = NULL;
+    Celula novo = (Celula) malloc(sizeof(struct tCelula)); //Aloca memoria para uma celula
+    novo->primeiro = NULL;  //Inicia ponteiros com NULL
     novo->ultimo = NULL;
     return novo;
 }
 
-void liberaCelula(Celula *cel)
+void liberaCelula(Celula *cel) //Libera a memoria alocada pela celula
 {
     Celula c = (*cel);
     liberaFila(&c->primeiro);
@@ -124,7 +123,7 @@ void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
     cel->ultimo = f->prox;             //atualiza o ultimo elemento da celula
 }
 
-void imprimeCelula(Celula cel)
+void imprimeCelula(Celula cel) //Imprime os elementos da celula
 {
     Fila f = cel->primeiro;
     imprimeFila(f);
