@@ -31,7 +31,7 @@ int filaVazia(Fila f) //Verifica se a fila esta vazia
     return f == NULL;
 }
 
-void liberaFila(Fila *fila) //Libera a memoria alocada pela fila
+void liberaFilaEncadeada(Fila *fila) //Libera a memoria alocada pela fila
 {
     if(*fila == NULL)   //Verifica se a fila esta vazia
         return;
@@ -98,14 +98,15 @@ Celula criaCelula(void)         //Cria uma celula
 void liberaCelula(Celula *cel) //Libera a memoria alocada pela celula
 {
     Celula c = (*cel);
-    liberaFila(&c->primeiro);
+    liberaFilaEncadeada(&c->primeiro);
     //liberaFila(c->ultimo);
     free(*cel);
 }
 
 int celulaVazia(Celula c) //Verifica se a celula esta vazia
 {
-  return c->primeiro == NULL;
+
+    return c == NULL || c->primeiro == NULL;
 }
 
 void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
@@ -125,6 +126,18 @@ void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
 
 void imprimeCelula(Celula cel) //Imprime os elementos da celula
 {
-    Fila f = cel->primeiro;
-    imprimeFila(f);
+    Fila f = cel->primeiro;      //Referencia o primeiro elemento da fila
+    imprimeFila(f);              //Imprime a fila
+}
+
+void pop(Celula cel)  //Remove o primeiro elemento da celula
+{
+    if(celulaVazia(cel))   //Verifica se a celula e valida
+        return;
+
+    Fila topo = cel->primeiro;      //Referencia o primeiro elemento
+
+    cel->primeiro = topo->prox;     //O segundo elemento passa a ser o primeiro
+    free(topo->buffer);             //Libera o elemento retirado
+    free(topo);
 }
