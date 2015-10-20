@@ -24,8 +24,58 @@ void lazyShell(void)
     }
 }
 
-void trata_SIGUSR2 (int sig)
+int cmdInt(char* comando)   //Verifica se o comando e interno
 {
-    static int i = 0;
-    printf("Fim do SIGUSR2.\n");
+    if(!strcmp("cd", comando))
+        return 1;                 //Retorna 1 se for o CD
+    if(!strcmp("wait", comando))
+        return 2;                 //Retorna 2 se for o WAIT
+    if(!strcmp("exit", comando))
+        return 3;                 //Retorna 3 se for o EXIT
+
+    return 0;                     //Retorna 0 se nao for comando interno
+}
+
+void CD(char* parametro) //Comando CD
+{
+    if(chdir(parametro)) //Verifica o parametro e realiza o cd
+        printf("Diretorio passado para o comando cd nao encontrado\n");
+}
+
+void WAIT(void) //Comando WAIT
+{
+    int process;
+    while(process = wait() != -1) //Enquanto nao liberar todos os filhos
+    {
+        printf("Encontrado filho %d\n", process); //Imprime filhos encontrados
+    }
+
+    printf("Não existem mais processos filhos no estado ZOMBIE\n");
+}
+
+void EXIT(void) //Comando EXIT
+{
+    WAIT();  //Espera todos os filhos serem liberados do estado zombie
+    exit(EXIT_SUCESS);  //Encerra o programa
+}
+
+void execCMDInt(int cmd, char* parametro)             //Executa o comando interno
+{
+    if(cmd == 1)                                         //Se for o comando CD
+    {
+        CD(parametro);                                   //Chama a funcao CD
+        return;
+    }
+
+    if(cmd == 2)                                         //Se for o comando WAIT
+    {
+        WAIT();                                          //Chama a funcao wait
+        return;
+    }
+
+    if(cmd == 3)                                        //Se for o comando EXIT
+    {
+        EXIT();                                         //Chama a funcao EXIT
+        return;
+    }
 }
