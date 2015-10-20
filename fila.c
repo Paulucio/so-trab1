@@ -50,9 +50,9 @@ void liberaFilaEncadeada(Fila *fila) //Libera a memoria alocada pela fila
 
 void insereFinalFila(Fila *fila, char *str) //Insere no final da fila
 {
-    if(*fila == NULL)     //Verifica se a fila esta vazia
+    if(*fila == NULL)     //Se a fila esta vazia
     {
-        *fila = criaElemFila(str);
+        *fila = criaElemFila(str);      //Cria um novo elemento na fila
         return;
     }
 
@@ -79,12 +79,21 @@ void imprimeFila(Fila fila)  //Funcao de imprimir os elementos da fila
     }
 }
 
+char* getElemFila(Fila f)
+{
+    if(f == NULL)
+        return NULL;
+
+    return f->buffer;
+}
+
 //////////////////////////////////////// CELULA ////////////////////////////////
 
 struct tCelula              //Estrutura da Celula
 {
   struct tFila *primeiro;
   struct tFila *ultimo;
+  int n_elem;
 };
 
 Celula criaCelula(void)         //Cria uma celula
@@ -92,6 +101,7 @@ Celula criaCelula(void)         //Cria uma celula
     Celula novo = (Celula) malloc(sizeof(struct tCelula)); //Aloca memoria para uma celula
     novo->primeiro = NULL;  //Inicia ponteiros com NULL
     novo->ultimo = NULL;
+    novo->n_elem = 0;
     return novo;
 }
 
@@ -115,6 +125,7 @@ void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
     {
         cel->primeiro = criaElemFila(str);
         cel->ultimo = cel->primeiro;
+        cel->n_elem += 1;
         return;
     }
     // Se nao insere no final
@@ -122,10 +133,18 @@ void addElemCelula(Celula cel, char *str)  //Insere elemento na fila
     Fila f = cel->ultimo;
     f->prox = criaElemFila(str);          //insere o novo elemento no final
     cel->ultimo = f->prox;             //atualiza o ultimo elemento da celula
+    cel->n_elem += 1;
 }
 
 void imprimeCelula(Celula cel) //Imprime os elementos da celula
 {
+    if(cel == NULL) //Verifica se a fila esta vazia
+    {
+        printf("Celula Vazia\n");
+        return;
+    }
+
+    printf("Numero de elementos: %d\n", cel->n_elem);
     Fila f = cel->primeiro;      //Referencia o primeiro elemento da fila
     imprimeFila(f);              //Imprime a fila
 }
@@ -140,4 +159,15 @@ void pop(Celula cel)  //Remove o primeiro elemento da celula
     cel->primeiro = topo->prox;     //O segundo elemento passa a ser o primeiro
     free(topo->buffer);             //Libera o elemento retirado
     free(topo);
+    cel->n_elem -= 1;
+}
+
+int getNumElem(Celula cel)  //Retorna o numero de elementos da celula
+{
+    return cel->n_elem;
+}
+
+char* getElemTopoCelula(Celula c)  //Retorna o elemento do topo da celula
+{
+    return getElemFila(c->primeiro);
 }
