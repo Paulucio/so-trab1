@@ -79,7 +79,7 @@ void imprimeFila(Fila fila)  //Funcao de imprimir os elementos da fila
     }
 }
 
-char* getElemFila(Fila f)
+char* getElemFila(Fila f)                     //Pega o elemento da fila
 {
     if(f == NULL)
         return NULL;
@@ -111,6 +111,11 @@ void liberaCelula(Celula *cel) //Libera a memoria alocada pela celula
     liberaFilaEncadeada(&c->primeiro);
     //liberaFila(c->ultimo);
     free(*cel);
+}
+
+Fila getTopoCelula(Celula cel)            //Retorna o primeiro da celula
+{
+    return cel->primeiro;
 }
 
 int celulaVazia(Celula c) //Verifica se a celula esta vazia
@@ -170,4 +175,59 @@ int getNumElem(Celula cel)  //Retorna o numero de elementos da celula
 char* getElemTopoCelula(Celula c)  //Retorna o elemento do topo da celula
 {
     return getElemFila(c->primeiro);
+}
+
+/////////////////////////////////// OPERACOES PARA NUMEROS NA FILA //////////////////////////////////////////
+
+char* numToString(int num) //Converte inteiro para string
+{
+    const int TAM = 20;
+    char *string = (char*) malloc(TAM*sizeof(char));
+    sprintf(string,"%d",num);
+    return string;
+}
+
+void addElemIntCelula(Celula cel, int num)  //Insere numero inteiro na fila
+{
+    char *str = NULL;
+
+    if(celulaVazia(cel))  //Se a fila estiver vazia insere o primeiro elemento
+    {
+        str = numToString(num);
+        cel->primeiro = criaElemFila(str);
+        cel->ultimo = cel->primeiro;
+        cel->n_elem += 1;
+        free(str);
+        return;
+    }
+    // Se nao insere no final
+
+    str = numToString(num);
+    Fila f = cel->ultimo;
+    f->prox = criaElemFila(str);          //insere o novo elemento no final
+    cel->ultimo = f->prox;             //atualiza o ultimo elemento da celula
+    cel->n_elem += 1;
+    free(str);
+}
+
+int* geraVetorPID(Celula cel)                              //Retorna vetor de PIDs dos processos
+{
+    int tam = getNumElem(cel), i=0;
+    int *vetor = (int*) malloc(tam*sizeof(int));
+
+    Fila aux = getTopoCelula(cel);
+
+    // printf("Tamanho %d", tam);
+
+    while(aux != NULL)
+    {
+        vetor[i++] = atoi(getElemFila(aux));
+        aux = aux->prox;
+    }
+    return vetor;
+}
+
+int getElemIntTopoCelula(Celula c)  //Retorna o elemento do topo da celula
+{
+    return atoi(getElemFila(c->primeiro));
 }
