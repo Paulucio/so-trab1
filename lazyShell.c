@@ -33,7 +33,7 @@ void lazyShell(Celula cel_PID, Celula cel_CMD)
 
 /////////////////////////////////////////// COMANDOS ///////////////////////////////////////////////////////////////
 
-void execComandos(Celula cel_PID, Celula cel_CMD)
+void execComandos(Celula cel_PID, Celula cel_CMD, Celula cel_ZOMBIE)
 {
     const int NUM_PARAMETROS = 5;     //Constante delimitadora do numero de parametros
     int i = 0;                        //Indice
@@ -68,15 +68,15 @@ void execComandos(Celula cel_PID, Celula cel_CMD)
             switch(i)                                             //Realiza o comando interno
             {
                 case 1:                                            //CD
-                    execCMDInt(i, argv[1], cel_PID, cel_CMD);
+                    execCMDInt(i, argv[1], cel_PID, cel_CMD, cel_ZOMBIE);
                     break;
 
                 case 2:                                            //WAIT
-                    execCMDInt(i, argv[1], cel_PID, cel_CMD);
+                    execCMDInt(i, argv[1], cel_PID, cel_CMD, cel_ZOMBIE);
                     break;
 
                 case 3:                                            //EXIT
-                    execCMDInt(i, argv[1], cel_PID, cel_CMD);
+                    execCMDInt(i, argv[1], cel_PID, cel_CMD, cel_ZOMBIE);
                     break;
             }
 
@@ -106,7 +106,7 @@ int cmdInt(char* comando)   //Verifica se o comando e interno
     return 0;                     //Retorna 0 se nao for comando interno
 }
 
-void execCMDInt(int cmd, char* parametro, Celula cel_PID, Celula cel_CMD)    //Executa o comando interno
+void execCMDInt(int cmd, char* parametro, Celula cel_PID, Celula cel_CMD, Celula cel_ZOMBIE)    //Executa o comando interno
 {
     if(cmd == 1)                                         //Se for o comando CD
     {
@@ -116,13 +116,13 @@ void execCMDInt(int cmd, char* parametro, Celula cel_PID, Celula cel_CMD)    //E
 
     if(cmd == 2)                                         //Se for o comando WAIT
     {
-        WAIT(cel_PID);                                          //Chama a funcao wait
+        WAIT(cel_PID, cel_ZOMBIE);                                          //Chama a funcao wait
         return;
     }
 
     if(cmd == 3)                                        //Se for o comando EXIT
     {
-        EXIT(cel_PID, cel_CMD);                          //Chama a funcao EXIT
+        EXIT(cel_PID, cel_CMD, cel_ZOMBIE);                          //Chama a funcao EXIT
         return;
     }
 }
@@ -139,11 +139,17 @@ void CD(char* parametro)                                 //Comando CD
         printf("Diretorio passado para o comando cd nao encontrado\n");
 }
 
-void WAIT(Celula cel_PID) //Comando WAIT
+void WAIT(Celula cel_PID, Celula cel_ZOMBIE) //Comando WAIT
 {
     int process;
 
-    while(process = waitpid(-1, NULL, WNOHANG)) //Enquanto nao liberar todos os filhos
+    while(getNumElem(cel_ZOMBIE) != 0)     //Imprime todos os processos q estavam em defunct
+    {
+        printf("\nRecolhido os restos de estado ZOMBIE do processo filho %d\n", getElemIntTopoCelula(cel_ZOMBIE)); //Imprime filhos encontrados)
+        pop(cel_ZOMBIE);
+    }
+
+    while(process = waitpid(-1, NULL, WNOHANG)) //Enquanto nao liberar todos os filhos que encerraram
     {
         if(process == -1)                       //Se nao encontrar processos vivos ou no estado zombie sai
             break;
@@ -152,7 +158,7 @@ void WAIT(Celula cel_PID) //Comando WAIT
     printf("\nNão existem mais processos filhos no estado ZOMBIE\n");
 }
 
-void EXIT(Celula cel_PID, Celula cel_CMD) //Comando EXIT
+void EXIT(Celula cel_PID, Celula cel_CMD, Celula cel_ZOMBIE) //Comando EXIT
 {
     int i=0, stats;
     int *vetor = NULL;
@@ -178,6 +184,7 @@ void EXIT(Celula cel_PID, Celula cel_CMD) //Comando EXIT
     free(vetor);
     liberaCelula(&cel_PID);
     liberaCelula(&cel_CMD);
+    liberaCelula(&cel_ZOMBIE);
     printf("\nFinalizando Lazy Shell...\n");
     exit(EXIT_SUCCESS);  //Encerra o programa
 }
@@ -199,7 +206,8 @@ void execCMDExt(Celula cel_PID, Celula cel_CMD, const char *cmd, char *const arg
         if(pid == 0) //Se for o filho
         {
             signal(SIGINT,SIG_IGN);                              //Ignorar SIGINT
-            setsid();                                            //Coloca o processo filho em background
+            if(setsid() < 0)                                            //Coloca o processo filho em background
+              fprintf(stderr, "\n ERRO NO SETSIG\n");
             execvp(cmd, argv);                                   //Executa comando externo
             fprintf(stderr, "\nO COMANDO < %s > NAO FOI ENCONTRADO!!!\n",cmd); //Se der erro na execucao imprime mensagem de ERRO
             _exit(EXIT_FAILURE);                                  //Encerra processo
