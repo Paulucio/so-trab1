@@ -1,3 +1,18 @@
-Lazy Shell
+#Lazy Shell#
 
-1º Trabalho de Sistemas Operacionais Periodo 2015/2
+#Objective#
+- Create a lazyShell
+
+#Dependences#
+- GCC
+
+#Compiling#
+```
+~$ make
+```
+
+#Run#
+```
+~$ ./lazyShell
+```
+
